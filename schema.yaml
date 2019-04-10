@@ -1,5 +1,7 @@
 title: str(min=8, max=255)
 image: str(max=1024)
+tasks: list(include('task'))
+solutions: list(include('solution'))
 pages: list(include('page'))
 phases: list(include('phase'))
 leaderboards: list(include('leaderboard'))
@@ -13,7 +15,7 @@ page:
 phase:
   name: str(max=128)
   description: str(max=1024)
-  index: int(max=99)
+  index: int(max=99) # check for non duplicates?
   color: enum('white', 'orange', 'yellow', 'green', 'blue', 'purple')
   max_submissions: int(required=False)
   max_submissions_per_day: int(required=False)
@@ -23,8 +25,8 @@ phase:
 
   files: list(include('file'))
 
-  tasks: list(include('task'))
-  solutions: list(include('solution'))
+  tasks: list(int())
+  solutions: list(int())
 
 file:
   name: str(max=128)
@@ -32,25 +34,19 @@ file:
   path: str(max=1024)
 
 task:
+  index: int() # verify non duplicates?
   name: str(max=128)
   description: str(max=1024)
   ingestion_module: include('ingestion_module')
   scoring_module: include('scoring_module')
-
-ingestion_module:
-  name: str(max=128, required=False)
-  description: str(max=1024, required=False)
   ingestion_program: str(max=1024)
-  input_data: str(max=1024, required=False)
   only_during_scoring: bool(required=False)
-
-scoring_module:
-  name: str(max=128, required=False)
-  description: str(max=1024, required=False)
+  input_data: str(max=1024, required=False)
   scoring_program: str(max=1024)
   reference_data: str(max=1024)
 
 solution:
+  index: int() # verify non duplicates?
   name: str(max=128)
   description: str(max=1024)
   path: str(max=1024)
