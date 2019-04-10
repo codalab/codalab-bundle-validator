@@ -1,0 +1,60 @@
+title: 'Hello world!'
+image: 'some_image.png'
+
+pages:
+  - title: 'Welcome!'
+    path: 'welcome.md'
+  - title: 'How to compete'
+    path: 'how_to.md'
+
+phases:
+  - name: 'First phase, specify many tasks!'
+    description: 'A description'
+    index: 0
+    color: 'white'
+    max_submissions: 100
+    max_submissions_per_day: 1
+    execution_time_limit_ms: 100
+    start: 2018-11-06 22:16:16
+    end: 2018-11-07 22:16:16
+
+    files:
+        - name: 'Public Data'
+          description: 'Some public data'
+          path: 'public_data.zip'
+        - name: 'Starting Kit'
+          description: 'Some starting kit'
+          path: 'starting_kit.zip'
+
+    tasks:
+      - name: "Test task"
+        description: "A test task"
+        ingestion_module:
+          name: "Test ingestion module"
+          description: "A test ingestion module"
+          ingestion_program: 'ingestion_program.zip'
+          input_data: 'input_data.zip'
+          only_during_scoring: True
+        scoring_module:
+          name: "Test solution"
+          description: "A test solution"
+          scoring_program: 'scoring_program.zip'
+          reference_data: 'reference_data.zip'
+    solutions:
+      - name: 'Solution!'
+        description: 'A very interesting solution'
+        path: 'solution.zip'
+
+leaderboards:
+  - title: 'Leaderboard'
+    key: 'main_leaderboard'
+    index: 0
+    #force_best_submission_to_leaderboard: true
+    columns:
+      - title: 'Score'
+        key: 'score'
+        index: 0
+        #computation: enum('avg', required=False)
+        #computation_indexes: str(required=False)
+        sorting: 'asc'
+        decimal_count: 0

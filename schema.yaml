@@ -1,0 +1,74 @@
+title: str(min=8, max=255)
+image: str(max=1024)
+pages: list(include('page'))
+phases: list(include('phase'))
+leaderboards: list(include('leaderboard'))
+
+---
+
+page:
+  title: str(max=32)
+  path: str(max=1024)
+
+phase:
+  name: str(max=128)
+  description: str(max=1024)
+  index: int(max=99)
+  color: enum('white', 'orange', 'yellow', 'green', 'blue', 'purple')
+  max_submissions: int(required=False)
+  max_submissions_per_day: int(required=False)
+  execution_time_limit_ms: int(max=5184000, required=False)
+  start: timestamp(required=False)
+  end: timestamp(required=False)
+
+  files: list(include('file'))
+
+  tasks: list(include('task'))
+  solutions: list(include('solution'))
+
+file:
+  name: str(max=128)
+  description: str(max=1024)
+  path: str(max=1024)
+
+task:
+  name: str(max=128)
+  description: str(max=1024)
+  ingestion_module: include('ingestion_module')
+  scoring_module: include('scoring_module')
+
+ingestion_module:
+  name: str(max=128, required=False)
+  description: str(max=1024, required=False)
+  ingestion_program: str(max=1024)
+  input_data: str(max=1024, required=False)
+  only_during_scoring: bool(required=False)
+
+scoring_module:
+  name: str(max=128, required=False)
+  description: str(max=1024, required=False)
+  scoring_program: str(max=1024)
+  reference_data: str(max=1024)
+
+solution:
+  name: str(max=128)
+  description: str(max=1024)
+  path: str(max=1024)
+
+leaderboard:
+  title: str(max=128)
+  key: str(max=128)
+  index: int()
+  columns: list(include('leaderboard_column'))
+  force_submission_to_leaderboard: bool(required=False)
+  force_best_submission_to_leaderboard: bool(required=False)
+  disallow_leaderboard_modifying: bool(required=False)
+
+leaderboard_column:
+  title: str(max=128)
+  key: str(max=128)
+  index: int()
+  computation: enum('avg', required=False)
+  computation_indexes: str(required=False)
+  sorting: enum('asc', 'desc')
+  decimal_count: int(required=False)
