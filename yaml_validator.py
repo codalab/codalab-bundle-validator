@@ -204,3 +204,13 @@ def compare_dirs():
             print(f'- {error}')
     else:
         print("Directories match")
+
+
+def main():
+    if SECOND_WORKING_DIR:
+        compare_dirs()
+    else:
+        single_dir_validation()
+
+
+main()
