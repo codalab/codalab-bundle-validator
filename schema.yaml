@@ -1,7 +1,7 @@
 title: str(min=8, max=255)
 image: str(max=1024)
 tasks: list(include('task'))
-solutions: list(include('solution'))
+solutions: list(include('solution'), required=False)
 pages: list(include('page'))
 phases: list(include('phase'))
 leaderboards: list(include('leaderboard'))
@@ -10,23 +10,23 @@ leaderboards: list(include('leaderboard'))
 
 page:
   title: str(max=32)
-  path: str(max=1024)
+  file: str(max=1024)
 
 phase:
   name: str(max=128)
   description: str(max=1024)
-  index: int(max=99) # check for non duplicates?
-  color: enum('white', 'orange', 'yellow', 'green', 'blue', 'purple')
+  index: int(max=99, required=False)
+  # color: enum('white', 'orange', 'yellow', 'green', 'blue', 'purple')
   max_submissions: int(required=False)
   max_submissions_per_day: int(required=False)
   execution_time_limit_ms: int(max=5184000, required=False)
-  start: timestamp(required=False)
+  start: timestamp()
   end: timestamp(required=False)
 
-  files: list(include('file'))
+  #files: list(include('file'))
 
   tasks: list(int())
-  solutions: list(int())
+  solutions: list(int(), required=False)
 
 file:
   name: str(max=128)
@@ -34,19 +34,17 @@ file:
   path: str(max=1024)
 
 task:
-  index: int() # verify non duplicates?
+  index: int()
   name: str(max=128)
   description: str(max=1024)
-  ingestion_module: include('ingestion_module')
-  scoring_module: include('scoring_module')
-  ingestion_program: str(max=1024)
+  ingestion_program: str(max=1024, required=False)
   only_during_scoring: bool(required=False)
   input_data: str(max=1024, required=False)
   scoring_program: str(max=1024)
-  reference_data: str(max=1024)
+  reference_data: str(max=1024, required=False)
 
 solution:
-  index: int() # verify non duplicates?
+  index: int()
   name: str(max=128)
   description: str(max=1024)
   path: str(max=1024)
@@ -54,7 +52,7 @@ solution:
 leaderboard:
   title: str(max=128)
   key: str(max=128)
-  index: int()
+  index: int(required=False)
   columns: list(include('leaderboard_column'))
   force_submission_to_leaderboard: bool(required=False)
   force_best_submission_to_leaderboard: bool(required=False)
@@ -66,5 +64,5 @@ leaderboard_column:
   index: int()
   computation: enum('avg', required=False)
   computation_indexes: str(required=False)
-  sorting: enum('asc', 'desc')
+  sorting: enum('asc', 'desc', required=False)
   decimal_count: int(required=False)

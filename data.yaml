@@ -29,7 +29,7 @@ solutions:
       - 0
 
 phases:
-  - name: 'First phase, specify many tasks!'
+  - name: 'First phase'
     description: 'A description'
     index: 0
     #color: 'white'
@@ -53,7 +53,7 @@ phases:
       - 1
 
 leaderboards:
-  - title: 'Leaderboard'
+  - title: 'Leaderboard 1'
     key: 'main_leaderboard'
     index: 0
     #force_best_submission_to_leaderboard: true
@@ -61,6 +61,32 @@ leaderboards:
       - title: 'Score'
         key: 'score'
         index: 0
+        #computation: enum('avg', required=False)
+        #computation_indexes: str(required=False)
+        sorting: 'asc'
+        decimal_count: 0
+      - title: 'Score'
+        key: 'score2'
+        index: 1
+        #computation: enum('avg', required=False)
+        #computation_indexes: str(required=False)
+        sorting: 'asc'
+        decimal_count: 0
+  - title: 'Leaderboard 2'
+    key: 'second_leaderboard'
+    index: 1
+    #force_best_submission_to_leaderboard: true
+    columns:
+      - title: 'Score'
+        key: 'score'
+        index: 0
+        #computation: enum('avg', required=False)
+        #computation_indexes: str(required=False)
+        sorting: 'asc'
+        decimal_count: 0
+      - title: 'Score'
+        key: 'score1'
+        index: 1
         #computation: enum('avg', required=False)
         #computation_indexes: str(required=False)
         sorting: 'asc'
