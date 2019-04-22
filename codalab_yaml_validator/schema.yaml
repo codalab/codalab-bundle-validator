@@ -20,8 +20,8 @@ phase:
   max_submissions: int(required=False)
   max_submissions_per_day: int(required=False)
   execution_time_limit_ms: int(max=5184000, required=False)
-  start: timestamp()
-  end: timestamp(required=False)
+  start: date()
+  end: date(required=False)
 
   #files: list(include('file'))
 
@@ -33,26 +33,28 @@ file:
   description: str(max=1024)
   path: str(max=1024)
 
-task:
+task:  # key or scoring_program is required
   index: int()
-  name: str(max=128)
-  description: str(max=1024)
+  name: str(max=256, required=False)
+  description: str(max=1024, required=False)
   ingestion_program: str(max=1024, required=False)
-  only_during_scoring: bool(required=False)
+  ingestion_only_during_scoring: bool(required=False)
   input_data: str(max=1024, required=False)
-  scoring_program: str(max=1024)
+  scoring_program: str(max=1024, required=False)
   reference_data: str(max=1024, required=False)
+  key: regex(r'[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}', required=False)
 
 solution:
   index: int()
-  name: str(max=128)
-  description: str(max=1024)
-  path: str(max=1024)
+  name: str(max=256)
+  description: str(max=1024, required=False)
+  path: str(max=1024, required=False)
+  key: regex(r'[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}', required=False)
 
 leaderboard:
   title: str(max=128)
   key: str(max=128)
-  index: int(required=False)
+  index: int()
   columns: list(include('leaderboard_column'))
   force_submission_to_leaderboard: bool(required=False)
   force_best_submission_to_leaderboard: bool(required=False)

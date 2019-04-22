@@ -10,19 +10,18 @@ setup(
     packages=['codalab_yaml_validator'],
     install_requires=[
         "yamale==1.10.0",
+        "python-dateutil==2.8.0",
+        "fuzzywuzzy==0.17.0",
+        "python-Levenshtein==0.12.0",
     ],
     entry_points={
         'console_scripts': [
-            'existence = codalab_yaml_validator.yaml_validator:main',
+            'validate_bundle = codalab_yaml_validator.yaml_validator:main',
         ]
     },
     license="MIT",
     long_description=long_description,
     long_description_content_type='text/markdown',
     version='0.0.1',
-    # author='',
-    # author_email='',
     url='https://github.com/codalab/codalab-bundle-validator',
-    # download_url='download link?',
-    # classifiers=[],
 )
