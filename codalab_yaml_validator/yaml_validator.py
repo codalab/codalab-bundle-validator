@@ -288,7 +288,7 @@ def single_dir_validation(yaml_fp, working_dir, silent=False):
     }
 
     for key, value in duplicated_indexes.items():
-        validation_errors.append(f'Duplicate {key} index(s): {value}') if value else None
+        validation_errors.append(f'Duplicate {key} index(es): {value}') if value else None
 
     for leaderboard in competition['leaderboards']:
         column_indexes = []
@@ -388,7 +388,7 @@ def single_dir_validation(yaml_fp, working_dir, silent=False):
         return False
     else:
         if not silent:
-            print("Valid Yaml!")
+            print("Yaml bundle is valid")
         return competition
 
 
