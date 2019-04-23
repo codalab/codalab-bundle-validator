@@ -145,3 +145,75 @@ EOFs on pages are changed in the process of storing their content as text on the
 is created, even if the characters are the same, the contents of the file differ slightly so verifying these with a
 hash is impossible. Again, these files will need to be checked manually. Because every page would be flagged as different,
 pages are not checked for differences at all.
+
+## Schema
+Used in conjunction with [Yamale](https://pypi.org/project/yamale/) to validate the yaml formatting.
+```yaml
+title: str(min=8, max=255)
+image: str(max=1024)
+tasks: list(include('task'))
+solutions: list(include('solution'), required=False)
+pages: list(include('page'))
+phases: list(include('phase'))
+leaderboards: list(include('leaderboard'))
+
+---
+
+page:
+  title: str(max=32)
+  file: str(max=1024)
+
+phase:
+  name: str(max=128)
+  description: str(max=1024)
+  index: int(max=99, required=False)
+  max_submissions: int(required=False)
+  max_submissions_per_day: int(required=False)
+  execution_time_limit_ms: int(max=5184000, required=False)
+  start: date()
+  end: date(required=False)
+
+  tasks: list(int())
+  solutions: list(int(), required=False)
+
+file:
+  name: str(max=128)
+  description: str(max=1024)
+  path: str(max=1024)
+
+task:  # key or scoring_program is required
+  index: int()
+  name: str(max=256, required=False)
+  description: str(max=1024, required=False)
+  ingestion_program: str(max=1024, required=False)
+  ingestion_only_during_scoring: bool(required=False)
+  input_data: str(max=1024, required=False)
+  scoring_program: str(max=1024, required=False)
+  reference_data: str(max=1024, required=False)
+  key: regex(r'[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}', required=False)
+
+solution:
+  index: int()
+  name: str(max=256)
+  description: str(max=1024, required=False)
+  path: str(max=1024, required=False)
+  key: regex(r'[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}', required=False)
+
+leaderboard:
+  title: str(max=128)
+  key: str(max=128)
+  index: int()
+  columns: list(include('leaderboard_column'))
+  force_submission_to_leaderboard: bool(required=False)
+  force_best_submission_to_leaderboard: bool(required=False)
+  disallow_leaderboard_modifying: bool(required=False)
+
+leaderboard_column:
+  title: str(max=128)
+  key: str(max=128)
+  index: int()
+  computation: enum('avg', required=False)
+  computation_indexes: str(required=False)
+  sorting: enum('asc', 'desc', required=False)
+  decimal_count: int(required=False)
+```
