@@ -22,7 +22,7 @@ setup(
     license="MIT",
     long_description=long_description,
     long_description_content_type='text/markdown',
-    version='0.0.4',
+    version='0.0.5',
     url='https://github.com/codalab/codalab-bundle-validator',
     include_package_data=True,
 )
