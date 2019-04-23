@@ -25,4 +25,5 @@ setup(
     version='0.0.6',
     url='https://github.com/codalab/codalab-bundle-validator',
     include_package_data=True,
+    python_requires='>=3'
 )
