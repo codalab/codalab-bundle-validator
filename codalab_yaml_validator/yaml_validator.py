@@ -3,7 +3,6 @@ import datetime
 import hashlib
 import os
 import re
-import shutil
 import zipfile
 
 import yamale
@@ -164,7 +163,7 @@ def dict_similarity(obj1, obj2):
     return similarity / ((k1_length + k2_length) / 2)
 
 
-def compare(d1, d2, label, prepend=""):
+def compare(d1, d2, label):
     defaults = {
         'is_public': False,
         'max_submissions': None,
@@ -187,11 +186,11 @@ def compare(d1, d2, label, prepend=""):
                 continue
             if key in defaults:
                 if d1[key] != defaults[key]:
-                    differences.append(f'{prepend}- {label} {d1["old_index"]} in {FIRST_FILE_NAME} changed {key} from default value but not declared in {SECOND_FILE_NAME}'
-                                       f'\n{prepend}  - Value: {d1[key]}'
-                                       f'\n{prepend}  - Default: {defaults[key]}')
+                    differences.append(f'- {label} {d1["old_index"]} in {FIRST_FILE_NAME} changed {key} from default value but not declared in {SECOND_FILE_NAME}'
+                                       f'\n  - Value: {d1[key]}'
+                                       f'\n  - Default: {defaults[key]}')
             else:
-                differences.append(f'{prepend}- {label} {d2["old_index"]} on {SECOND_FILE_NAME} missing value for {key}')
+                differences.append(f'- {label} {d2["old_index"]} on {SECOND_FILE_NAME} missing value for {key}')
             continue
         if key == 'tasks' and label == 'Solution':
             continue
@@ -199,6 +198,14 @@ def compare(d1, d2, label, prepend=""):
             task_array = get_similarity_array(d1[key], d2[key])
             for t1, t2 in task_array:
                 differences += compare(d1['tasks'][t1], d2['tasks'][t2], 'Task')
+            d1_tasks = [task[0] for task in task_array]
+            d2_tasks = [task[1] for task in task_array]
+            for task in d1['tasks']:
+                if task['index'] not in d1_tasks:
+                    differences.append(f'- Task with index:{task["old_index"]} in {FIRST_FILE_NAME} has no equivalent in {SECOND_FILE_NAME}')
+            for task in d2['tasks']:
+                if task['index'] not in d2_tasks:
+                    differences.append(f'- Task with index:{task["old_index"]} in {SECOND_FILE_NAME} has no equivalent in {FIRST_FILE_NAME}')
         elif key == 'solutions':
             solution_array = get_similarity_array(d1[key], d2[key])
             for s1, s2 in solution_array:
@@ -208,8 +215,8 @@ def compare(d1, d2, label, prepend=""):
             for c1, c2 in column_array:
                 differences += compare(d1['columns'][c1], d2['columns'][c2], 'Column')
         elif d1[key] != d2[key]:
-            differences.append(f'{prepend}- Values on {label}s index:{d1["old_index"]} in {FIRST_FILE_NAME} and index:{d2["old_index"]} in {SECOND_FILE_NAME}'
-                               f' do not match for key: {key}.\n{prepend}  - {FIRST_FILE_NAME} = {d1[key]}\n{prepend}  - {SECOND_FILE_NAME} = {d2[key]}')
+            differences.append(f'- Values on {label}s index:{d1["old_index"]} in {FIRST_FILE_NAME} and index:{d2["old_index"]} in {SECOND_FILE_NAME}'
+                               f' do not match for key: {key}.\n  - {FIRST_FILE_NAME} = {d1[key]}\n  - {SECOND_FILE_NAME} = {d2[key]}')
     for key in d2.keys():
         if key in ['index', 'old_index']:
             continue
@@ -218,11 +225,11 @@ def compare(d1, d2, label, prepend=""):
                 continue
             if key in defaults:
                 if d2[key] != defaults[key]:
-                    differences.append(f'{prepend}- {label} {d2["old_index"]} in {SECOND_FILE_NAME} changed {key} from default value but not declared in {FIRST_FILE_NAME}'
-                                       f'\n{prepend}  - Value: {d2[key]}'
-                                       f'\n{prepend}  - Default: {defaults[key]}')
+                    differences.append(f'- {label} {d2["old_index"]} in {SECOND_FILE_NAME} changed {key} from default value but not declared in {FIRST_FILE_NAME}'
+                                       f'\n  - Value: {d2[key]}'
+                                       f'\n  - Default: {defaults[key]}')
             else:
-                differences.append(f'{prepend}- {label} {d1["old_index"]} in {FIRST_FILE_NAME} missing value for {key}')
+                differences.append(f'- {label} {d1["old_index"]} in {FIRST_FILE_NAME} missing value for {key}')
             continue
     return differences
 
@@ -408,6 +415,13 @@ def compare_dirs():
         phase1 = competition1['phases'][ph1]
         phase2 = competition2['phases'][ph2]
         differences += compare(phase1, phase2, 'Phase')
+
+    for phase in competition1['phases']:
+        if phase['index'] not in [p[0] for p in phase_array]:
+            differences.append(f'- Phase index:{phase["index"]} in {FIRST_FILE_NAME} has no equivalent in {SECOND_FILE_NAME}')
+    for phase in competition2['phases']:
+        if phase['index'] not in [p[1] for p in phase_array]:
+            differences.append(f'- Phase index:{phase["index"]} in {SECOND_FILE_NAME} has no equivalent in {FIRST_FILE_NAME}')
 
     leaderboard_array = get_similarity_array(competition1['leaderboards'], competition2['leaderboards'])
     for l1, l2 in leaderboard_array:
