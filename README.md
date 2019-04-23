@@ -120,7 +120,7 @@ making comparisons. This process is the same for comparing tasks, solutions, lea
 ##### Example Output
 In the case of the above yamls:
 ```
-- $ validate_bundle /path/to/Archive/ /path/to/Dump.zip
+$ validate_bundle /path/to/Archive/ /path/to/Dump.zip
 Differences:
 
 - Values on Phases index:1 in Archive and index:0 in Dump.zip do not match for key: name.
