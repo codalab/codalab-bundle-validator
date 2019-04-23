@@ -186,11 +186,13 @@ def compare(d1, d2, label):
                 continue
             if key in defaults:
                 if d1[key] != defaults[key]:
-                    differences.append(f'- {label} {d1["old_index"]} in {FIRST_FILE_NAME} changed {key} from default value but not declared in {SECOND_FILE_NAME}'
-                                       f'\n  - Value: {d1[key]}'
-                                       f'\n  - Default: {defaults[key]}')
+                    differences.append(f'- Default Value Change\n'
+                                       f'  - [{FIRST_FILE_NAME}] {label} index:{d1["old_index"]} ({key}) = {d1[key]}\n'
+                                       f'  - [{SECOND_FILE_NAME}] {label} index:{d2["old_index"]} ({key}) = None (defaults to: {defaults[key]})')
             else:
-                differences.append(f'- {label} {d2["old_index"]} on {SECOND_FILE_NAME} missing value for {key}')
+                differences.append(f'- Missing value\n'
+                                   f'  - [{FIRST_FILE_NAME}] {label} index:{d1["old_index"]} ({key}) = {d1[key]}'
+                                   f'  - [{SECOND_FILE_NAME}] {label} index:{d2["old_index"]} ({key}) = None')
             continue
         if key == 'tasks' and label == 'Solution':
             continue
@@ -202,10 +204,12 @@ def compare(d1, d2, label):
             d2_tasks = [task[1] for task in task_array]
             for task in d1['tasks']:
                 if task['index'] not in d1_tasks:
-                    differences.append(f'- Task with index:{task["old_index"]} in {FIRST_FILE_NAME} has no equivalent in {SECOND_FILE_NAME}')
+                    differences.append(f'- No Equivalent Value\n'
+                                       f'  - [{FIRST_FILE_NAME}] Task index:{task["old_index"]} has no equivalent {label} in [{SECOND_FILE_NAME}]')
             for task in d2['tasks']:
                 if task['index'] not in d2_tasks:
-                    differences.append(f'- Task with index:{task["old_index"]} in {SECOND_FILE_NAME} has no equivalent in {FIRST_FILE_NAME}')
+                    differences.append(f'- No Equivalent Value\n'
+                                       f'  - [{SECOND_FILE_NAME}] Task index:{task["old_index"]} has no equivalent {label} in [{FIRST_FILE_NAME}]')
         elif key == 'solutions':
             solution_array = get_similarity_array(d1[key], d2[key])
             for s1, s2 in solution_array:
@@ -215,8 +219,9 @@ def compare(d1, d2, label):
             for c1, c2 in column_array:
                 differences += compare(d1['columns'][c1], d2['columns'][c2], 'Column')
         elif d1[key] != d2[key]:
-            differences.append(f'- Values on {label}s index:{d1["old_index"]} in {FIRST_FILE_NAME} and index:{d2["old_index"]} in {SECOND_FILE_NAME}'
-                               f' do not match for key: {key}.\n  - {FIRST_FILE_NAME} = {d1[key]}\n  - {SECOND_FILE_NAME} = {d2[key]}')
+            differences.append(f'- Mismatched values\n'
+                               f'  - [{FIRST_FILE_NAME}] {label} index:{d1["old_index"]} ({key}) = {d1[key]}\n'
+                               f'  - [{SECOND_FILE_NAME}] {label} index:{d2["old_index"]} ({key}) = {d2[key]}')
     for key in d2.keys():
         if key in ['index', 'old_index']:
             continue
@@ -225,11 +230,13 @@ def compare(d1, d2, label):
                 continue
             if key in defaults:
                 if d2[key] != defaults[key]:
-                    differences.append(f'- {label} {d2["old_index"]} in {SECOND_FILE_NAME} changed {key} from default value but not declared in {FIRST_FILE_NAME}'
-                                       f'\n  - Value: {d2[key]}'
-                                       f'\n  - Default: {defaults[key]}')
+                    differences.append(f'- Default Value Change\n'
+                                       f'  - [{FIRST_FILE_NAME}] {label} index:{d1["old_index"]} ({key}) = None (defaults to: {defaults[key]})\n'
+                                       f'  - [{SECOND_FILE_NAME}] {label} index:{d2["old_index"]} ({key}) = {d2[key]}')
             else:
-                differences.append(f'- {label} {d1["old_index"]} in {FIRST_FILE_NAME} missing value for {key}')
+                differences.append(f'- Missing value\n'
+                                   f'  - [{FIRST_FILE_NAME}] {label} index:{d1["old_index"]} ({key}) = None'
+                                   f'  - [{SECOND_FILE_NAME}] {label} index:{d2["old_index"]} ({key}) = {d2[key]}')
             continue
     return differences
 
@@ -405,7 +412,10 @@ def compare_dirs():
     differences = []
 
     if competition1['title'] != competition2['title']:
-        differences.append(f'- Titles do not match\n  - {FIRST_FILE_NAME}: {competition1["title"]}\n  - {SECOND_FILE_NAME}: {competition2["title"]}')
+        differences.append(f'- Mismatched values\n'
+                           f'  - [{FIRST_FILE_NAME}] Title = {competition1["title"]}\n'
+                           f'  - [{SECOND_FILE_NAME}] Title = {competition2["title"]}')
+
     if competition1['image'] != competition2['image']:
         differences.append('- Image files do not match')
 
@@ -418,10 +428,12 @@ def compare_dirs():
 
     for phase in competition1['phases']:
         if phase['index'] not in [p[0] for p in phase_array]:
-            differences.append(f'- Phase index:{phase["index"]} in {FIRST_FILE_NAME} has no equivalent in {SECOND_FILE_NAME}')
+            differences.append(f'- No Equivalent Value\n'
+                               f'  - [{FIRST_FILE_NAME}] Phase index:{phase["index"]} has no equivalent Phase in [{SECOND_FILE_NAME}]')
     for phase in competition2['phases']:
         if phase['index'] not in [p[1] for p in phase_array]:
-            differences.append(f'- Phase index:{phase["index"]} in {SECOND_FILE_NAME} has no equivalent in {FIRST_FILE_NAME}')
+            differences.append(f'- No Equivalent Value\n'
+                               f'  - [{SECOND_FILE_NAME}] Phase index:{phase["index"]} has no equivalent Phase in [{FIRST_FILE_NAME}]')
 
     leaderboard_array = get_similarity_array(competition1['leaderboards'], competition2['leaderboards'])
     for l1, l2 in leaderboard_array:
@@ -440,3 +452,4 @@ def main():
         compare_dirs()
     else:
         single_dir_validation(YAML_FP, WORKING_DIR)
+main()
