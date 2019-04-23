@@ -114,21 +114,22 @@ phases:
 
 The Comparison process can intelligently determine that index 0 in the upload bundle should be compared to index 1 in the
 dump bundle, so that the most accurate account of differences can be given. This does have some limitations, especially 
-as the number of changes made in the editor increase, But it should seek to minimize the number of differences when
+as the number of changes made in the editor increase, but it should seek to minimize the number of differences when
 making comparisons. This process is the same for comparing tasks, solutions, leaderboards, and columns.
 
 ##### Example Output
 In the case of the above yamls:
 ```
+- $ validate_bundle /path/to/Archive/ /path/to/Dump.zip
 Differences:
 
-- Values on Phases index:1 in Archive and index:0 in Dump do not match for key: name.
+- Values on Phases index:1 in Archive and index:0 in Dump.zip do not match for key: name.
   - Archive = Slower Phase
-  - Dump = Slow Phase
+  - Dump.zip = Slow Phase
 
-- Values on Phases index:0 in Archive and index:1 in Dump do not match for key: description.
+- Values on Phases index:0 in Archive and index:1 in Dump.zip do not match for key: description.
   - Archive = Computing Pi Faster
-  - Dump = Computing Pi Quickly
+  - Dump.zip = Computing Pi Quickly
 ```
 
 ##### Limitations
