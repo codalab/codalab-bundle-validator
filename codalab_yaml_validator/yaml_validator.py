@@ -145,6 +145,113 @@ def make_competition_dict(competition, working_dir):
     return competition
 
 
+def dict_similarity(obj1, obj2):
+    similarity = 0
+    keys1 = obj1.keys()
+    keys2 = obj2.keys()
+    for key in keys1:
+        if key in obj2:
+            if obj1[key] == obj2[key]:
+                similarity += 1
+            elif key in ['title', 'name', 'description']:
+                similarity += fuzz.ratio(obj1[key], obj2[key]) / 100
+    k1_length = len(keys1)
+    k2_length = len(keys2)
+    if 'key' in obj1 and 'key' not in obj2:
+        k1_length -= 1
+    if 'key' in obj2 and 'key' not in obj1:
+        k2_length -= 1
+    return similarity / ((k1_length + k2_length) / 2)
+
+
+def compare(d1, d2, label, prepend=""):
+    defaults = {
+        'is_public': False,
+        'max_submissions': None,
+        'max_submissions_per_day': None,
+        'execution_time_limit_ms': 600,
+        'sorting': 'desc',
+        'computation': None,
+        'computation_indexes': None,
+    }
+    differences = []
+    if 'old_index' not in d1:
+        d1['old_index'] = d1['index']
+    if 'old_index' not in d2:
+        d2['old_index'] = d2['index']
+    for key in d1.keys():
+        if key in ['index', 'old_index']:
+            continue
+        if key not in d2:
+            if key == 'key':
+                continue
+            if key in defaults:
+                if d1[key] != defaults[key]:
+                    differences.append(f'{prepend}- {label} {d1["old_index"]} in {FIRST_FILE_NAME} changed {key} from default value but not declared in {SECOND_FILE_NAME}'
+                                       f'\n{prepend}  - Value: {d1[key]}'
+                                       f'\n{prepend}  - Default: {defaults[key]}')
+            else:
+                differences.append(f'{prepend}- {label} {d2["old_index"]} on {SECOND_FILE_NAME} missing value for {key}')
+            continue
+        if key == 'tasks' and label == 'Solution':
+            continue
+        if key == 'tasks':
+            task_array = get_similarity_array(d1[key], d2[key])
+            for t1, t2 in task_array:
+                differences += compare(d1['tasks'][t1], d2['tasks'][t2], 'Task')
+        elif key == 'solutions':
+            solution_array = get_similarity_array(d1[key], d2[key])
+            for s1, s2 in solution_array:
+                differences += compare(d1['solutions'][s1], d2['solutions'][s2], 'Solution')
+        elif key == 'columns':
+            column_array = get_similarity_array(d1[key], d2[key])
+            for c1, c2 in column_array:
+                differences += compare(d1['columns'][c1], d2['columns'][c2], 'Column')
+        elif d1[key] != d2[key]:
+            differences.append(f'{prepend}- Values on {label}s index:{d1["old_index"]} in {FIRST_FILE_NAME} and index:{d2["old_index"]} in {SECOND_FILE_NAME}'
+                               f' do not match for key: {key}.\n{prepend}  - {FIRST_FILE_NAME} = {d1[key]}\n{prepend}  - {SECOND_FILE_NAME} = {d2[key]}')
+    for key in d2.keys():
+        if key in ['index', 'old_index']:
+            continue
+        if key not in d1:
+            if key == 'key':
+                continue
+            if key in defaults:
+                if d2[key] != defaults[key]:
+                    differences.append(f'{prepend}- {label} {d2["old_index"]} in {SECOND_FILE_NAME} changed {key} from default value but not declared in {FIRST_FILE_NAME}'
+                                       f'\n{prepend}  - Value: {d2[key]}'
+                                       f'\n{prepend}  - Default: {defaults[key]}')
+            else:
+                differences.append(f'{prepend}- {label} {d1["old_index"]} in {FIRST_FILE_NAME} missing value for {key}')
+            continue
+    return differences
+
+
+def get_similarity_array(list1, list2):
+    similarity_array = []
+    for obj1 in list1:
+        values = []
+        for obj2 in list2:
+            values.append(dict_similarity(obj1, obj2))
+        similarity_array.append(values)
+    position_array = []
+    while sum(map(sum, similarity_array)) > 0:
+        max_similarity = 0
+        position = []
+        for index1, row in enumerate(similarity_array):
+            for index2, value in enumerate(row):
+                if value > max_similarity:
+                    max_similarity = value
+                    position = [index1, index2]
+        position_array.append(position)
+        row = position[0]
+        col = position[1]
+        similarity_array[row] = [0 for _ in similarity_array[row]]
+        for row_index in range(len(similarity_array)):
+            similarity_array[row_index][col] = 0
+    return position_array
+
+
 def single_dir_validation(yaml_fp, working_dir, silent=False):
     # ######### Initial Formatting Check ######### #
     validators = DefaultValidators.copy()  # This is a dictionary
@@ -278,106 +385,6 @@ def single_dir_validation(yaml_fp, working_dir, silent=False):
         return competition
 
 
-def dict_similarity(obj1, obj2):
-    similarity = 0
-    keys1 = obj1.keys()
-    keys2 = obj2.keys()
-    for key in keys1:
-        if key in obj2:
-            if obj1[key] == obj2[key]:
-                similarity += 1
-            elif key in ['title', 'name', 'description']:
-                similarity += fuzz.ratio(obj1[key], obj2[key]) / 100
-    k1_length = len(keys1)
-    k2_length = len(keys2)
-    if 'key' in obj1 and 'key' not in obj2:
-        k1_length -= 1
-    if 'key' in obj2 and 'key' not in obj1:
-        k2_length -= 1
-    return similarity / ((k1_length + k2_length) / 2)
-
-
-def compare(d1, d2, label, prepend=""):
-    defaults = {
-        'is_public': False,
-        'max_submissions': None,
-        'max_submissions_per_day': None,
-        'execution_time_limit_ms': 600,
-    }
-    differences = []
-    if 'old_index' not in d1:
-        d1['old_index'] = d1['index']
-    if 'old_index' not in d2:
-        d2['old_index'] = d2['index']
-    for key in d1.keys():
-        if key in ['index', 'old_index']:
-            continue
-        if key not in d2:
-            if key == 'key':
-                continue
-            if key in defaults:
-                if d1[key] != defaults[key]:
-                    differences.append(f'{prepend}- {label} {d1["old_index"]} in {FIRST_FILE_NAME} changed {key} from default value but not declared in {SECOND_FILE_NAME}'
-                                       f'\n{prepend}  - Value: {d1[key]}'
-                                       f'\n{prepend}  - Default: {defaults[key]}')
-            else:
-                differences.append(f'{prepend}- {label} {d2["old_index"]} on {SECOND_FILE_NAME} missing value for {key}')
-            continue
-        if key == 'tasks' and label == 'Solution':
-            continue
-        if key == 'tasks':
-            task_array = get_similarity_array(d1[key], d2[key])
-            for t1, t2 in task_array:
-                differences += compare(d1['tasks'][t1], d2['tasks'][t2], 'Task')
-        elif key == 'solutions':
-            solution_array = get_similarity_array(d1[key], d2[key])
-            for s1, s2 in solution_array:
-                differences += compare(d1['solutions'][s1], d2['solutions'][s2], 'Solution')
-        elif d1[key] != d2[key]:
-            differences.append(f'{prepend}- Values on {label}s index:{d1["old_index"]} in {FIRST_FILE_NAME} and index:{d2["old_index"]} in {SECOND_FILE_NAME}'
-                               f' do not match for key: {key}.\n{prepend}  - {FIRST_FILE_NAME} = {d1[key]}\n{prepend}  - {SECOND_FILE_NAME} = {d2[key]}')
-    for key in d2.keys():
-        if key in ['index', 'old_index']:
-            continue
-        if key not in d1:
-            if key == 'key':
-                continue
-            if key in defaults:
-                if d2[key] != defaults[key]:
-                    differences.append(f'{prepend}- {label} {d2["old_index"]} in {SECOND_FILE_NAME} changed {key} from default value but not declared in {FIRST_FILE_NAME}'
-                                       f'\n{prepend}  - Value: {d2[key]}'
-                                       f'\n{prepend}  - Default: {defaults[key]}')
-            else:
-                differences.append(f'{prepend}- {label} {d1["old_index"]} in {FIRST_FILE_NAME} missing value for {key}')
-            continue
-    return differences
-
-
-def get_similarity_array(list1, list2):
-    similarity_array = []
-    for obj1 in list1:
-        values = []
-        for obj2 in list2:
-            values.append(dict_similarity(obj1, obj2))
-        similarity_array.append(values)
-    position_array = []
-    while sum(map(sum, similarity_array)) > 0:
-        max_similarity = 0
-        position = []
-        for index1, row in enumerate(similarity_array):
-            for index2, value in enumerate(row):
-                if value > max_similarity:
-                    max_similarity = value
-                    position = [index1, index2]
-        position_array.append(position)
-        row = position[0]
-        col = position[1]
-        similarity_array[row] = [0 for _ in similarity_array[row]]
-        for row_index in range(len(similarity_array)):
-            similarity_array[row_index][col] = 0
-    return position_array
-
-
 def compare_dirs():
     competition1 = single_dir_validation(YAML_FP, WORKING_DIR, silent=True)
     competition2 = single_dir_validation(SECOND_YAML_FP, SECOND_WORKING_DIR, silent=True)
@@ -401,6 +408,10 @@ def compare_dirs():
         phase1 = competition1['phases'][ph1]
         phase2 = competition2['phases'][ph2]
         differences += compare(phase1, phase2, 'Phase')
+
+    leaderboard_array = get_similarity_array(competition1['leaderboards'], competition2['leaderboards'])
+    for l1, l2 in leaderboard_array:
+        differences += compare(competition1['leaderboards'][l1], competition2['leaderboards'][l2], 'Leaderboard')
 
     if differences:
         print('\nDifferences:\n')
