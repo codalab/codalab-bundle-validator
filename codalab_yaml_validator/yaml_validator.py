@@ -452,4 +452,3 @@ def main():
         compare_dirs()
     else:
         single_dir_validation(YAML_FP, WORKING_DIR)
-main()
