@@ -9,7 +9,7 @@ setup(
     name='codalab_yaml_validator',
     packages=['codalab_yaml_validator'],
     install_requires=[
-        "yamale==1.10.0",
+        "yamale==3.0.8",
         "python-dateutil==2.8.0",
         "fuzzywuzzy==0.17.0",
         "python-Levenshtein==0.12.0",
